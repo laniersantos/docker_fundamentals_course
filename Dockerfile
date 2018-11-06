@@ -1,5 +1,13 @@
-FROM debian:9
+FROM alpine:3.5 AS build
 MAINTAINER Lanier Santos
-RUN apt-get update && apt-get clean
-ENTRYPOINT ["ping","-c","3"]
-CMD ["127.0.0.1"]
+RUN apk update && \
+    apk add --update alpine-sdk
+RUN mkdir /app
+WORKDIR /app
+COPY hello.c /app
+RUN mkdir bin
+RUN gcc -Wall hello.c -o bin/hello
+
+FROM alpine:3.5
+COPY --from=build /app/bin/hello /app/hello
+CMD /app/hello
